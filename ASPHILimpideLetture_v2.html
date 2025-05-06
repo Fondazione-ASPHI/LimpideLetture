@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Analisi Lemmi</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+    }
+    main {
+      flex: 3;
+      padding: 20px;
+    }
+    aside {
+      flex: 1;
+      border-left: 1px solid #ccc;
+      padding: 20px;
+      background-color: #f9f9f9;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .highlight {
+      color: red;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .highlight:focus {
+      outline: 2px solid blue;
+    }
+    #output {
+      margin-top: 20px;
+      padding: 10px;
+      font-size: 1.2em;
+      line-height: 1.6em;
+      white-space: pre-wrap;
+      
+    }
+
+   
+    #tooltip {
+      display: none;
+      position: fixed;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      z-index: 1000;
+      max-width: 300px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    }
+    #promptBox {
+      display: none;
+      margin-top: 10px;
+    }
+    #gptPromptToggle {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Limpide Letture di Fondazione ASPHI Onlus</h1>
+
+    <label>Carica elenco lemmi da considere conosciuti (.txt):</label>
+    <input type="file" id="lemmaFile" accept=".txt"><br>
+    <label>Aggiungi una parola conosciuta:</label><br>
+<input type="text" id="newLemma">
+<button onclick="aggiungiLemma()">Aggiungi</button>
+<button onclick="scaricaLemmi()">Scarica lemmi conosciuti (.txt)</button><br><br>
+
+<span id="addLemmaMsg" style="margin-left: 10px; color: green;"></span><br><br>
+    <br>
+
+    <label>Inserisci la tua API Key GPT OpenAI:</label><br>
+    <input type="password" id="apiKey" size="60"><br><br>
+
+    <button id="gptPromptToggle" onclick="togglePromptBox()">Prompt per Lettura Guidata</button>
+    <button id="gptPrompt2Toggle" onclick="toggle2PromptBox()">Prompt per Semplificazione Testo</button>
+    <br><br>
+
+    <div id="promptBox">
+      <label>Prompt per spiegazioni GPT (puoi modificarlo):</label><br>
+      <textarea id="gptPrompt" rows="3" cols="80">Nel testo seguente: \n"{testo}"\nspiega in modo facile la parola "{parola}" in base al contesto. Usa frasi brevi e parole semplici.</textarea><br><br>
+    </div>
+    <div id="promptSemplificaBox">
+        <label>Prompt per la semplificazione (modificabile):</label><br>
+        <textarea id="promptSemplifica" rows="2" cols="80">
+      Semplifica questo testo mantendo tutti i significati per essere accessibile per un lettore con livello A1 di italiano
+        </textarea><br><br>
+      </div>
+
+    <label>Inserisci il testo</label><br>
+    <textarea id="inputText" rows="10" cols="200"></textarea><br><br>
+
+    <button onclick="analyzeText()">Lettura Guidata</button>
+    <button onclick="semplificaTesto()">Semplifica Testo</button>
+    <button onclick="spiegaSelezioneOutput()">Spiega selezione evidenziata</button>
+    <button onclick="exportToPDF()">Esporta PDF</button>
+    <br><br>
+
+
+
+
+
+
+    <div id="output">
+        
+    </div>
+  
+    <div id="tooltip"></div>
+  </main>
+
+  <aside>
+    <h2>Spiegazioni IA - GPT</h2>
+    <div id="explanationBox"></div>
+  </aside>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    let lemmiSet = new Set();
+    let paroleA1 = new Set(["casa", "libro", "mangiare", "bere", "andare", "bello", "grande", "piccolo", "scuola", "spalla"]);
+    const a1Cache = new Map();
+    const tooltipCache = new Map();
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Recupera da localStorage
+      
+
+      const savedSemplifica = localStorage.getItem("promptSemplifica");
+      document.getElementById("promptSemplificaBox").style.display = "none";
+
+      if (savedSemplifica) document.getElementById("promptSemplifica").value = savedSemplifica;
+
+      const savedPrompt = localStorage.getItem("gptPrompt");
+      const savedKey = localStorage.getItem("apiKey");
+      const savedLemmi = localStorage.getItem("lemmiList");
+      if (savedPrompt) document.getElementById("gptPrompt").value = savedPrompt;
+      if (savedKey) document.getElementById("apiKey").value = savedKey;
+      if (savedLemmi) {
+        lemmiSet = new Set(JSON.parse(savedLemmi));
+        alert("Lemmi caricati da memoria locale: " + lemmiSet.size);
+      }
+    });
+
+    function togglePromptBox() {
+      const box = document.getElementById("promptBox");
+      box.style.display = box.style.display === "none" ? "block" : "none";
+    }
+
+    function toggle2PromptBox() {
+  const box2 = document.getElementById("promptSemplificaBox");
+  box2.style.display = box2.style.display === "none" ? "block" : "none";
+}
+
+
+    function normalize(str) {
+      return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
+    function simpleStem(word) {
+      let base = normalize(word);
+      base = base.replace(/(ando|endo|are|ere|ire|ato|uto|ito|ava|eva|iva|ano|ono|mente)$/i, '');
+      base = base.replace(/(iamo|ate|ano|ono|ete|ite)$/i, '');
+      base = base.replace(/(ci|vi|mi|ti|si)$/i, '');
+      base = base.replace(/(issimo|issima|issimi|issime)$/i, '');
+      base = base.replace(/(ita|ezza|evole|abile|ibile)$/i, '');
+      base = base.replace(/(mente)$/i, '');
+      base = base.replace(/(he|hi|ie|ge|gi|ce|ci)$/i, '');
+      base = base.replace(/(i|e|o|a)$/i, '');
+      return base;
+    }
+
+    function evidenziaSelezione(selection) {
+      const range = selection.getRangeAt(0);
+      const mark = document.createElement("mark");
+      mark.textContent = selection.toString();
+      range.deleteContents();
+      range.insertNode(mark);
+      selection.removeAllRanges();
+    }
+
+    function mostraRisultatoSelezione(testo, spiegazione) {
+        const box = document.getElementById("explanationBox");
+        const paragrafo = document.createElement("p");
+        paragrafo.setAttribute("data-type", "selection");
+        paragrafo.innerHTML = `<mark>${testo}</mark>: ${spiegazione}`;
+
+        box.appendChild(paragrafo);
+    }
+
+    function aggiungiLemma() {
+  const nuovaParola = document.getElementById("newLemma").value.trim().toLowerCase();
+  const base = simpleStem(nuovaParola);
+
+  if (!nuovaParola) {
+    document.getElementById("addLemmaMsg").textContent = "Inserisci una parola.";
+    return;
+  }
+
+  if (lemmiSet.has(base)) {
+    document.getElementById("addLemmaMsg").textContent = `"${nuovaParola}" è già presente.`;
+    return;
+  }
+
+  lemmiSet.add(base);
+  localStorage.setItem("lemmiList", JSON.stringify(Array.from(lemmiSet)));
+  document.getElementById("addLemmaMsg").textContent = `"${nuovaParola}" aggiunta con successo!`;
+  document.getElementById("newLemma").value = "";
+
+  setTimeout(() => document.getElementById("addLemmaMsg").textContent = "", 3000);
+}
+
+function scaricaLemmi() {
+  const contenuto = Array.from(lemmiSet).sort().join("\n");
+  const blob = new Blob([contenuto], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "lemmi_conosciuti.txt";
+  link.click();
+
+  URL.revokeObjectURL(url);
+}
+
+async function semplificaTesto() {
+  const testoOriginale = document.getElementById("inputText").value.trim();
+  const apiKey = document.getElementById("apiKey").value.trim();
+  const promptBase = document.getElementById("promptSemplifica").value.trim();
+  localStorage.setItem("promptSemplifica", promptBase); // << ORA è corretta
+
+  if (!testoOriginale || !apiKey) {
+    alert("Inserisci il testo e la tua API key.");
+    return;
+  }
+
+  const prompt = `${promptBase}\n\n"${testoOriginale}"`;
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.4
+      })
+    });
+
+    const data = await response.json();
+    const output = data.choices?.[0]?.message?.content || "Nessuna risposta.";
+    document.getElementById("output").innerText = output;
+  } catch (err) {
+    alert("Errore nella semplificazione del testo.");
+    console.error(err);
+  }
+}
+
+
+
+    document.getElementById('lemmaFile').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const lines = e.target.result.split(/\r?\n/);
+          lemmiSet = new Set(lines.map(line => simpleStem(line.trim().toLowerCase())));
+          localStorage.setItem("lemmiList", JSON.stringify(Array.from(lemmiSet)));
+          alert("Lemmi caricati: " + lemmiSet.size);
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    async function analyzeText() {
+      const text = document.getElementById("inputText").value;
+      const apiKey = document.getElementById("apiKey").value;
+      const prompt = document.getElementById("gptPrompt").value;
+      localStorage.setItem("apiKey", apiKey);
+      localStorage.setItem("gptPrompt", prompt);
+      const words = text.split(/(\b)/);
+
+      const seenWords = new Set();
+      const checkedWords = await Promise.all(words.map(async (word, i) => {
+        const clean = normalize(word.replace(/[^\wÀ-ÿ]/g, ''));
+        const stem = simpleStem(clean);
+        if (clean && !lemmiSet.has(clean) && !lemmiSet.has(stem) && !paroleA1.has(clean)) {
+          if (seenWords.has(clean)) return word;
+          seenWords.add(clean);
+          const isA1 = await checkIfA1(clean, apiKey);
+          if (!isA1) {
+            return `<span class="highlight" tabindex="0" onclick="showTooltip(event, '${clean}', '${apiKey}')">${word}</span>`;
+          }
+        }
+        return word;
+      }));
+
+      document.getElementById("output").innerHTML = checkedWords.join("");
+    }
+
+    async function checkIfA1(word, apiKey) {
+      if (a1Cache.has(word)) return a1Cache.get(word);
+      try {
+        const prompt = `La parola "${word}" è accessibile a una persona con livello A1 di italiano? Rispondi solo con sì o no.`;
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: "gpt-4",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.3
+          })
+        });
+        const data = await response.json();
+        const isA1 = data.choices?.[0]?.message?.content.trim().toLowerCase().startsWith("s");
+        a1Cache.set(word, isA1);
+        return isA1;
+      } catch (err) {
+        console.error("Errore A1:", err);
+        return false;
+      }
+    }
+
+    async function showTooltip(event, word, apiKey) {
+      const tooltip = document.getElementById("tooltip");
+      tooltip.innerHTML = "(caricamento in corso...)";
+      const x = event.pageX;
+      const y = event.pageY;
+      tooltip.style.left = (x + 10) + 'px';
+      tooltip.style.top = (y + 10) + 'px';
+      tooltip.style.display = 'block';
+
+      if (tooltipCache.has(word)) {
+        tooltip.innerHTML = tooltipCache.get(word);
+        document.getElementById("explanationBox").innerHTML += `<p><strong>${word}:</strong> ${tooltipCache.get(word)}</p>`;
+        return;
+      }
+
+      const context = document.getElementById("inputText").value;
+      let promptTemplate = document.getElementById("gptPrompt").value;
+      const prompt = promptTemplate.replace("{testo}", context).replace("{parola}", word);
+
+      try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: "gpt-4",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.5
+          })
+        });
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content || "Nessuna risposta.";
+        tooltip.innerHTML = content;
+        tooltipCache.set(word, content);
+        const p = document.createElement("p");
+        p.setAttribute("data-type", "tooltip");
+        p.innerHTML = `<strong>${word}:</strong> ${content}`;
+        document.getElementById("explanationBox").appendChild(p);
+
+      } catch (err) {
+        tooltip.innerHTML = "Errore nel caricamento della spiegazione.";
+        console.error("Errore tooltip:", err);
+      }
+    }
+    async function exportToPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 10;
+
+  // Titolo
+  doc.setFontSize(16);
+  doc.text("Limpide Letture - Report di Lettura", 10, y);
+  y += 10;
+
+  // Testo originale
+  doc.setFontSize(12);
+  doc.text("Testo originale:", 10, y);
+  y += 10;
+  const text = document.getElementById("inputText").value;
+  const originalLines = doc.splitTextToSize(text, 180);
+  doc.text(originalLines, 10, y);
+  y += originalLines.length * 8 + 5;
+
+  // Spiegazioni GPT delle parole difficili
+  doc.setFontSize(12);
+  doc.text("Spiegazioni delle parole difficili:", 10, y);
+  y += 10;
+  for (const [word, explanation] of tooltipCache.entries()) {
+    const lines = doc.splitTextToSize(`• ${word}: ${explanation}`, 180);
+    if (y + lines.length * 8 > 280) {
+      doc.addPage();
+      y = 10;
+    }
+    doc.text(lines, 10, y);
+    y += lines.length * 8;
+  }
+
+  // Spiegazioni delle selezioni evidenziate
+  const spiegazioniEvidenziate = document.querySelectorAll("#explanationBox p[data-type='selection']");
+  if (spiegazioniEvidenziate.length > 0) {
+    y += 10;
+    if (y > 280) {
+      doc.addPage();
+      y = 10;
+    }
+    doc.text("Spiegazioni delle selezioni evidenziate:", 10, y);
+    y += 10;
+
+    spiegazioniEvidenziate.forEach(p => {
+      const testo = p.textContent;
+      const lines = doc.splitTextToSize(`• ${testo}`, 180);
+      if (y + lines.length * 8 > 280) {
+        doc.addPage();
+        y = 10;
+      }
+      doc.text(lines, 10, y);
+      y += lines.length * 8;
+    });
+  }
+
+  doc.save("lettura_guidata.pdf");
+}
+
+
+
+    document.addEventListener('click', function(e) {
+      const tooltip = document.getElementById("tooltip");
+      if (!e.target.classList.contains('highlight')) {
+        tooltip.style.display = 'none';
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === "Enter" && document.activeElement.classList.contains("highlight")) {
+        document.activeElement.click();
+      }
+    });
+  
+    async function spiegaSelezioneOutput() {
+  const selection = window.getSelection();
+  const selectedText = selection.toString().trim();
+  const output = document.getElementById("output");
+
+  if (!selectedText || !output.contains(selection.anchorNode)) {
+    alert("Seleziona una parte del testo nel riquadro sottostante.");
+    return;
+  }
+
+  const apiKey = document.getElementById("apiKey").value;
+  const promptTemplate = document.getElementById("gptPrompt").value;
+  const contesto = document.getElementById("inputText").value;
+  const prompt = promptTemplate
+    .replace("{testo}", contesto)
+    .replace("{parola}", selectedText);
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.5
+      })
+    });
+
+    const data = await response.json();
+    const risposta = data.choices?.[0]?.message?.content || "Nessuna risposta.";
+    mostraRisultatoSelezione(selectedText, risposta);
+    evidenziaSelezione(selection);
+  } catch (err) {
+    alert("Errore nella richiesta a GPT.");
+    console.error(err);
+  }
+}
+
+  </script>
+</body>
+</html>
