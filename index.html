@@ -147,6 +147,13 @@
       <div class="section">
         <label>Inserisci la tua API Key OpenAI:</label>
         <input type="password" id="apiKey">
+        <label for="gptModel"><strong>Modello GPT da usare:</strong></label>
+<select id="gptModel">
+  <option value="gpt-3.5-turbo">💸 GPT-3.5 Turbo (più economico)</option>
+  <option value="gpt-4">💡 GPT-4</option>
+  <option value="gpt-4-turbo">🚀 GPT-4 Turbo (più veloce e aggiornato)</option>
+</select>
+
         <div class="button-group">
           <button onclick="togglePromptBox()">Prompt Lettura Guidata</button>
           <button onclick="toggle2PromptBox()">Prompt Semplifica Testo</button>
@@ -189,6 +196,17 @@
     const a1Cache = new Map();
     const tooltipCache = new Map();
 
+    document.addEventListener('DOMContentLoaded', () => {
+  const savedModel = localStorage.getItem("gptModel");
+  if (savedModel) document.getElementById("gptModel").value = savedModel;
+
+  document.getElementById("gptModel").addEventListener("change", () => {
+    localStorage.setItem("gptModel", document.getElementById("gptModel").value);
+  });
+});
+   
+    
+    
     document.addEventListener('DOMContentLoaded', () => {
       // Recupera da localStorage
       
@@ -319,7 +337,7 @@ async function semplificaTesto() {
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "gpt-4",
+        model: document.getElementById("gptModel").value,
         messages: [{ role: "user", content: prompt }],
         temperature: 0.4
       })
@@ -387,7 +405,7 @@ async function semplificaTesto() {
             "Authorization": `Bearer ${apiKey}`
           },
           body: JSON.stringify({
-            model: "gpt-4",
+            model: document.getElementById("gptModel").value,
             messages: [{ role: "user", content: prompt }],
             temperature: 0.3
           })
@@ -429,7 +447,7 @@ async function semplificaTesto() {
             "Authorization": `Bearer ${apiKey}`
           },
           body: JSON.stringify({
-            model: "gpt-4",
+            model: document.getElementById("gptModel").value,
             messages: [{ role: "user", content: prompt }],
             temperature: 0.5
           })
@@ -547,7 +565,7 @@ async function semplificaTesto() {
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "gpt-4",
+        model: document.getElementById("gptModel").value,
         messages: [{ role: "user", content: prompt }],
         temperature: 0.5
       })
