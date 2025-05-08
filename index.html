@@ -125,57 +125,78 @@
 </head>
 <body>
     <header>
+        
         <img src="logo.png" alt="Icona Limpide Letture" style="vertical-align: middle; height: 1.8em; margin-right: 10px;">
-        <span style="vertical-align: middle;">Limpide Letture -  per l'accessibilità, l'apprendimento e la comprensione dei testi - @ASPHI Onlus</span>
+        <span style="vertical-align: middle;">Limpide Letture -  per l'accessibilità, l'apprendimento e la comprensione dei testi - di ASPHI Onlus</span>
+        <a href="https://www.asphi.it" target="_blank" style="display: inline-block; margin-right: 10px;">
+            <img src="logo_asphi.png" alt="Logo ASPHI" style="height: 2em; vertical-align: middle;">
+          </a>
         <button onclick="window.open('guida.html', 'Guida', 'width=800,height=600,scrollbars=yes,resizable=yes')" style="float: right; margin-left: 10px;">
             📘 Guida
           </button>
+          <button onclick="toggleVocabolario()" style="float: right; margin-left: 10px;" title="Vocabolario di base">
+            📚 Vocabolario 
+          </button>
+          
+          <button onclick="toggleSettings()" style="float: right; margin-left: 10px;" title="Impostazioni">
+            ⚙️ Impostazioni
+          </button>
+          
+          
       </header>
   <main>
     <section class="left">
-      <div class="section">
-        <label>Carica elenco parole conosciute (file txt) - (<a href="2000_parole_fondamentali_DeMauro.zip" download> Per iniziare qui </a> puoi scaricare 2000 parole dal Vocabolario di Base di De Mauro :</label>
-        <input type="file" id="lemmaFile" accept=".txt">
-        <div class="button-group">
-          <input type="text" id="newLemma" placeholder="Aggiungi parola conosciuta">
-          <button onclick="aggiungiLemma()">Aggiungi</button>
-          <button onclick="scaricaLemmi()">Scarica elenco</button>
+        <div id="vocabolarioPanel" style="display: none; border: 1px solid #ccc; padding: 10px; margin-bottom: 1rem; border-radius: 6px; background-color: #fdfdfd;">
+            <label>📂 Carica elenco parole conosciute (file .txt) <br>
+              (<a href="2000_parole_fondamentali_DeMauro.zip" download>Scaricare Vocabolario De Mauro - elenco 2000 parole fondamentali</a>)
+            </label>
+            <input type="file" id="lemmaFile" accept=".txt">
+            <div class="button-group">
+              <input type="text" id="newLemma" placeholder="Scrivi Parola conosciuta">
+              <button onclick="aggiungiLemma()">➕ Aggiungi Parola</button>
+              <button onclick="scaricaLemmi()">⬇️ Scarica elenco parole vocabolario personale</button>
+            </div>
+            <span id="addLemmaMsg" style="color: green;"></span>
+          </div>
+      <div id="settingsPanel" style="display: none; border: 1px solid #ccc; padding: 10px; margin-bottom: 1rem; border-radius: 6px; background-color: #fdfdfd;">
+        <div class="section" style="margin-bottom: 0.5rem;">
+          <label>🔑 Inserisci la tua API Key OpenAI:</label>
+          <input type="password" id="apiKey">
         </div>
-        <span id="addLemmaMsg" style="color: green;"></span>
+      
+        <div class="section" style="margin-bottom: 0.5rem;">
+          <label for="gptModel">🤖 Modello GPT da usare:</label>
+          <select id="gptModel">
+            <option value="gpt-3.5-turbo">💸 GPT-3.5 Turbo (più economico)</option>
+            <option value="gpt-4">💡 GPT-4</option>
+            <option value="gpt-4-turbo">🚀 GPT-4 Turbo (più veloce e aggiornato)</option>
+          </select>
+        </div>
+      
+        <div class="section" style="margin-bottom: 0.5rem;">
+          <button onclick="togglePromptBox()">🗺️ Modifica il prompt per la Lettura Guidata</button>
+          <button onclick="toggle2PromptBox()">✍️ Modifica il prompt per la Semplificazione del Testo</button>
+        </div>
+      
+        <div id="promptBox" style="display: none;">
+          <label> Prompt Lettura Guidata:</label>
+          <textarea id="gptPrompt" rows="2"></textarea>
+        </div>
+        <div id="promptSemplificaBox" style="display: none;">
+          <label> Prompt Semplificazione del Testo:</label>
+          <textarea id="promptSemplifica" rows="2"></textarea>
+        </div>
       </div>
+      
 
       <div class="section">
-        <label>Inserisci la tua API Key OpenAI:</label>
-        <input type="password" id="apiKey">
-        <label for="gptModel"><strong>Modello GPT da usare:</strong></label>
-<select id="gptModel">
-  <option value="gpt-3.5-turbo">💸 GPT-3.5 Turbo (più economico)</option>
-  <option value="gpt-4">💡 GPT-4</option>
-  <option value="gpt-4-turbo">🚀 GPT-4 Turbo (più veloce e aggiornato)</option>
-</select>
-
-        <div class="button-group">
-          <button onclick="togglePromptBox()">Prompt Lettura Guidata</button>
-          <button onclick="toggle2PromptBox()">Prompt Semplifica Testo</button>
-        </div>
-        <div id="promptBox" style="display:none;">
-          <label>Prompt per Spiegazioni delle parole non conosciute:</label>
-          <textarea id="gptPrompt" rows="3">Nel testo seguente: \n"{testo}"\nspiega in modo facile la parola "{parola}" in base al contesto. Usa frasi brevi e parole semplici.</textarea>
-        </div>
-        <div id="promptSemplificaBox" style="display:none;">
-          <label>Prompt per la semplificazione del testo:</label>
-          <textarea id="promptSemplifica" rows="3">Semplifica questo testo mantenendo tutti i significati per essere accessibile per un lettore con livello A1 di italiano</textarea>
-        </div>
-      </div>
-
-      <div class="section">
-        <label>Testo da analizzare:</label>
+        <label>Scrivi o Incolla qui il testo:</label>
         <textarea id="inputText" rows="10"></textarea>
         <div class="button-group">
-          <button onclick="analyzeText()">Lettura Guidata</button>
-          <button onclick="semplificaTesto()">Semplifica Testo</button>
-          <button onclick="spiegaSelezioneOutput()">Spiega selezione</button>
-          <button onclick="exportToPDF()">Esporta PDF</button>
+          <button onclick="analyzeText()">🗺️ Lettura Guidata</button>
+          <button onclick="semplificaTesto()">✍️ Semplifica il Testo</button>
+          <button onclick="spiegaSelezioneOutput()">🟨 Spiega testo evidenziato con il mouse</button>
+          <button onclick="exportToPDF()">🧾 Esporta in PDF</button>
         </div>
       </div>
 
@@ -580,7 +601,15 @@ async function semplificaTesto() {
     console.error(err);
   }
 }
+function toggleSettings() {
+  const panel = document.getElementById("settingsPanel");
+  panel.style.display = panel.style.display === "none" ? "block" : "none";
+}
 
+function toggleVocabolario() {
+  const panel = document.getElementById("vocabolarioPanel");
+  panel.style.display = panel.style.display === "none" ? "block" : "none";
+}
   
   </script>
 </body>
