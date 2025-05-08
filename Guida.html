@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Guida all'uso - Limpide Letture</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+      background-color: #f9f9f9;
+    }
+    h1, h2, h3 {
+      color: #E85D26;
+    }
+    code {
+      background-color: #eee;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    ul, ol {
+      margin-left: 1.5rem;
+    }
+    .box {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .important {
+      background-color: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 10px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Limpide Letture – Guida per l'utente</h1>
+  <p><strong>Limpide Letture</strong> è una web app progettata da ASPHI Onlus per aiutare a comprendere meglio i testi scritti. È utile per studenti, persone con difficoltà di lettura, insegnanti e chiunque voglia semplificare testi o spiegarne le parole più difficili.</p>
+
+  <div class="box">
+    <h2>🔧 Requisiti</h2>
+    <ul>
+      <li>Un computer o tablet con connessione a internet</li>
+      <li>Un browser (consigliato: Google Chrome)</li>
+      <li>Questa web app funziona dotandosi di una <strong>API Key OpenAI</strong> per accedere ai servizi GPT (gratuita o a pagamento, si ottiene registrandosi su <a href="https://platform.openai.com" target="_blank">https://platform.openai.com</a>)</li>
+    </ul>
+  </div>
+
+  <div class="box">
+    <h2>🚀 Vocabolario di base</h2>
+    <ol>
+     <li>Carica un vocabolario italano di parole di base in formato txt. Suggeriamo l'elenco delle 2000 parole fondamentali tratte dal Vocabolario di base della Lingua Italiana di De Mauro. Le trovi da <a href="2000_parole_fondamentali_DeMauro.zip" download>scaricare qui in formato zip</a> </li>
+     <li>Estrai il file txt dalla cartella compressa e aprilo con un editor di testo se vuoi vedere che parole ci sono e aggiungere o togliere parole, prima di caricarlo nella web app</li>
+     <li>Una volta caricato la prima volta il file txt, il vocabolario sarà salvato localmente nel tuo browser e sarà riaperto automaticamente quando riaccedi a questa web app. </li>
+      
+    </ol>
+  </div>
+
+  <div class="box">
+    <h2>🗝️ Inserisci la tua API Key</h2>
+    <ol>
+      <li>Vai su <a href="https://platform.openai.com/account/api-keys" target="_blank">platform.openai.com/account/api-keys</a></li>
+      <li>Effettua il login e clicca su “Create new secret key”</li>
+      <li>Copia la chiave generata</li>
+      <li>Incollala nella casella "Inserisci la tua API Key OpenAI" nella web app</li>
+    </ol>
+    <p class="important"><strong>Nota:</strong> questa chiave è privata. La web app la usa e salva solo nel tuo browser locale, non viene inviata a nessun server esterno.</p>
+  </div>
+
+  <div class="box">
+    <h2>📄 Carica il tuo testo</h2>
+    <p>Scrivi o incolla il testo che vuoi analizzare nel riquadro "Testo da analizzare".</p>
+  </div>
+
+  <div class="box">
+    <h2>🔍 Lettura Guidata</h2>
+    <p>Cliccando su <strong>"Lettura Guidata"</strong>, la web app:</p>
+    <ul>
+      <li>analizza il testo</li>
+      <li>evidenzia le parole difficili (cioè non comuni o non nel tuo vocabolario)</li>
+      <li>ti permette di cliccare sulle parole per ottenerne una spiegazione semplice</li>
+    </ul>
+  </div>
+
+  <div class="box">
+    <h2>✍️ Semplifica Testo</h2>
+    <p>Cliccando su <strong>"Semplifica Testo"</strong>, otterrai una versione semplificata del tuo testo, scritta con parole facili e frasi più brevi. È ideale per:</p>
+    <ul>
+      <li>chi ha difficoltà di lettura</li>
+      <li>chi studia l’italiano</li>
+      <li>contesti educativi inclusivi</li>
+    </ul>
+  </div>
+
+  <div class="box">
+    <h2>🖱️ Spiega selezione</h2>
+    <p>Puoi selezionare con il mouse una parte del testo e cliccare su <strong>"Spiega selezione"</strong> per ricevere una spiegazione semplice del significato di quella frase.</p>
+  </div>
+
+  <div class="box">
+    <h2>🧠 Personalizzare i prompt</h2>
+    <p>Se vuoi, puoi modificare i testi che la web app invia all’intelligenza artificiale. Clicca su:</p>
+    <ul>
+      <li><strong>Prompt Lettura Guidata</strong> per cambiare il modo in cui le parole vengono spiegate</li>
+      <li><strong>Prompt Semplifica Testo</strong> per cambiare le istruzioni della semplificazione</li>
+    </ul>
+  </div>
+
+  <div class="box">
+    <h2>💾 Esporta il risultato in PDF</h2>
+    <p>Cliccando su <strong>"Esporta PDF"</strong>, potrai salvare il lavoro con:</p>
+    <ul>
+      <li>Il testo originale</li>
+      <li>Le parole difficili con spiegazione</li>
+      <li>Le frasi selezionate e spiegate</li>
+    </ul>
+  </div>
+
+  <div class="box">
+    <h2>📁 Aggiungere parole conosciute</h2>
+    <p>La web app ti permette di:</p>
+    <ul>
+      <li><strong>Caricare</strong> un file `.txt` con le parole che conosci (una parola per riga)</li>
+      <li><strong>Aggiungere</strong> manualmente nuove parole</li>
+      <li><strong>Scaricare</strong> l’elenco aggiornato</li>
+    </ul>
+    <p>Così la web app ti spiega solo le parole che non conosci!</p>
+  </div>
+
+  <div class="important">
+    <p><strong>Hai bisogno di aiuto?</strong> Se qualcosa non funziona, controlla di avere una connessione attiva e una API Key valida. Ricarica la pagina se necessario.</p>
+  </div>
+
+  <p style="text-align: center; margin-top: 40px; font-size: 0.9em; color: #555;">
+    Limpide Letture &copy; Fondazione ASPHI Onlus - Progetto per l'inclusione digitale<br>
+    Ultimo aggiornamento: maggio 2025
+  </p>
+</body>
+</html>

@@ -2,42 +2,101 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Analisi Lemmi</title>
+  <title>Limpide Letture - UI Ottimizzata</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
+      margin: 0;
       display: flex;
-    }
-    main {
-      flex: 3;
-      padding: 20px;
-    }
-    aside {
-      flex: 1;
-      border-left: 1px solid #ccc;
-      padding: 20px;
-      background-color: #f9f9f9;
+      flex-direction: column;
       height: 100vh;
+    }
+
+    header {
+      background-color: #E85D26;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5em;
+    }
+
+    main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .left, .right {
+      padding: 1rem;
       overflow-y: auto;
     }
+
+    .left {
+      flex: 3;
+    }
+
+    .right {
+      flex: 1;
+      background-color: #f0f0f0;
+      border-left: 1px solid #ccc;
+    }
+
+    .section {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 0.5rem;
+    }
+
+    textarea, input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      font-size: 1rem;
+    }
+
+    button {
+      margin: 0.25rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      background-color: #007acc;
+      color: white;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
     .highlight {
       color: red;
       font-weight: bold;
       cursor: pointer;
     }
+
     .highlight:focus {
       outline: 2px solid blue;
     }
+
     #output {
-      margin-top: 20px;
-      padding: 10px;
-      font-size: 1.2em;
-      line-height: 1.6em;
+      margin-top: 1rem;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      background-color: #fff;
       white-space: pre-wrap;
-      
+      line-height: 1.6em;
     }
 
-   
     #tooltip {
       display: none;
       position: fixed;
@@ -48,72 +107,80 @@
       max-width: 300px;
       box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
     }
-    #promptBox {
-      display: none;
-      margin-top: 10px;
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
     }
-    #gptPromptToggle {
-      margin-top: 10px;
+
+    .section-title {
+      font-size: 1.2em;
+      margin-bottom: 0.5rem;
+      border-bottom: 2px solid #004080;
+      padding-bottom: 0.25rem;
     }
   </style>
 </head>
 <body>
+    <header>
+        <img src="logo.png" alt="Icona Limpide Letture" style="vertical-align: middle; height: 1.8em; margin-right: 10px;">
+        <span style="vertical-align: middle;">Limpide Letture -  per l'accessibilità, l'apprendimento e la comprensione dei testi - @ASPHI Onlus</span>
+        <button onclick="window.open('guida.html', 'Guida', 'width=800,height=600,scrollbars=yes,resizable=yes')" style="float: right; margin-left: 10px;">
+            📘 Guida
+          </button>
+      </header>
   <main>
-    <h1>Limpide Letture di Fondazione ASPHI Onlus</h1>
-
-    <label>Carica elenco lemmi da considere conosciuti (.txt):</label>
-    <input type="file" id="lemmaFile" accept=".txt"><br>
-    <label>Aggiungi una parola conosciuta:</label><br>
-<input type="text" id="newLemma">
-<button onclick="aggiungiLemma()">Aggiungi</button>
-<button onclick="scaricaLemmi()">Scarica lemmi conosciuti (.txt)</button><br><br>
-
-<span id="addLemmaMsg" style="margin-left: 10px; color: green;"></span><br><br>
-    <br>
-
-    <label>Inserisci la tua API Key GPT OpenAI:</label><br>
-    <input type="password" id="apiKey" size="60"><br><br>
-
-    <button id="gptPromptToggle" onclick="togglePromptBox()">Prompt per Lettura Guidata</button>
-    <button id="gptPrompt2Toggle" onclick="toggle2PromptBox()">Prompt per Semplificazione Testo</button>
-    <br><br>
-
-    <div id="promptBox">
-      <label>Prompt per spiegazioni GPT (puoi modificarlo):</label><br>
-      <textarea id="gptPrompt" rows="3" cols="80">Nel testo seguente: \n"{testo}"\nspiega in modo facile la parola "{parola}" in base al contesto. Usa frasi brevi e parole semplici.</textarea><br><br>
-    </div>
-    <div id="promptSemplificaBox">
-        <label>Prompt per la semplificazione (modificabile):</label><br>
-        <textarea id="promptSemplifica" rows="2" cols="80">
-      Semplifica questo testo mantendo tutti i significati per essere accessibile per un lettore con livello A1 di italiano
-        </textarea><br><br>
+    <section class="left">
+      <div class="section">
+        <label>Carica elenco parole conosciute (file txt) - (ad esempio Vocabolario di base - De Mauro):</label>
+        <input type="file" id="lemmaFile" accept=".txt">
+        <div class="button-group">
+          <input type="text" id="newLemma" placeholder="Aggiungi parola conosciuta">
+          <button onclick="aggiungiLemma()">Aggiungi</button>
+          <button onclick="scaricaLemmi()">Scarica elenco</button>
+        </div>
+        <span id="addLemmaMsg" style="color: green;"></span>
       </div>
 
-    <label>Inserisci il testo</label><br>
-    <textarea id="inputText" rows="10" cols="200"></textarea><br><br>
+      <div class="section">
+        <label>Inserisci la tua API Key OpenAI:</label>
+        <input type="password" id="apiKey">
+        <div class="button-group">
+          <button onclick="togglePromptBox()">Prompt Lettura Guidata</button>
+          <button onclick="toggle2PromptBox()">Prompt Semplifica Testo</button>
+        </div>
+        <div id="promptBox" style="display:none;">
+          <label>Prompt per Spiegazioni delle parole non conosciute:</label>
+          <textarea id="gptPrompt" rows="3">Nel testo seguente: \n"{testo}"\nspiega in modo facile la parola "{parola}" in base al contesto. Usa frasi brevi e parole semplici.</textarea>
+        </div>
+        <div id="promptSemplificaBox" style="display:none;">
+          <label>Prompt per la semplificazione del testo:</label>
+          <textarea id="promptSemplifica" rows="3">Semplifica questo testo mantenendo tutti i significati per essere accessibile per un lettore con livello A1 di italiano</textarea>
+        </div>
+      </div>
 
-    <button onclick="analyzeText()">Lettura Guidata</button>
-    <button onclick="semplificaTesto()">Semplifica Testo</button>
-    <button onclick="spiegaSelezioneOutput()">Spiega selezione evidenziata</button>
-    <button onclick="exportToPDF()">Esporta PDF</button>
-    <br><br>
+      <div class="section">
+        <label>Testo da analizzare:</label>
+        <textarea id="inputText" rows="10"></textarea>
+        <div class="button-group">
+          <button onclick="analyzeText()">Lettura Guidata</button>
+          <button onclick="semplificaTesto()">Semplifica Testo</button>
+          <button onclick="spiegaSelezioneOutput()">Spiega selezione</button>
+          <button onclick="exportToPDF()">Esporta PDF</button>
+        </div>
+      </div>
 
+      <div id="output"></div>
+      <div id="tooltip"></div>
+    </section>
 
-
-
-
-
-    <div id="output">
-        
-    </div>
-  
-    <div id="tooltip"></div>
+    <aside class="right">
+      <div class="section-title">Spiegazioni IA - GPT</div>
+      <div id="explanationBox"></div>
+    </aside>
   </main>
-
-  <aside>
-    <h2>Spiegazioni IA - GPT</h2>
-    <div id="explanationBox"></div>
-  </aside>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
@@ -140,6 +207,14 @@
         lemmiSet = new Set(JSON.parse(savedLemmi));
         alert("Lemmi caricati da memoria locale: " + lemmiSet.size);
       }
+      // 🔁 Salva automaticamente ogni modifica ai prompt
+  document.getElementById("promptSemplifica").addEventListener("input", () => {
+    localStorage.setItem("promptSemplifica", document.getElementById("promptSemplifica").value);
+  });
+
+  document.getElementById("gptPrompt").addEventListener("input", () => {
+    localStorage.setItem("gptPrompt", document.getElementById("gptPrompt").value);
+  });
     });
 
     function togglePromptBox() {
@@ -488,6 +563,7 @@ async function semplificaTesto() {
   }
 }
 
+  
   </script>
 </body>
 </html>
