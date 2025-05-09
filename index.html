@@ -260,15 +260,27 @@
   document.getElementById("gptModel").addEventListener("change", () => {
     localStorage.setItem("gptModel", document.getElementById("gptModel").value);
   });
-});
-   
-    
-    
-    document.addEventListener('DOMContentLoaded', () => {
-      // Recupera da localStorage
-      
 
-      const savedSemplifica = localStorage.getItem("promptSemplifica");
+  // Prompt di default
+  const defaultPromptLettura = "Spiega la parola '{parola}' nel contesto seguente in modo semplice e adatto a chi conosce poco l'italiano:\n\n{testo}";
+  const defaultPromptSemplifica = "Riscrivi il seguente testo in modo semplice, comprensibile a un parlante di italiano a livello A1, con parole facili e frasi brevi, mantenendo lo stesso significato:\n\n";
+
+  // Inizializza prompt Lettura Guidata se assente
+  if (!localStorage.getItem("gptPrompt")) {
+    document.getElementById("gptPrompt").value = defaultPromptLettura;
+    localStorage.setItem("gptPrompt", defaultPromptLettura);
+  } else {
+    document.getElementById("gptPrompt").value = localStorage.getItem("gptPrompt");
+  }
+
+  // Inizializza prompt Semplificazione se assente
+  if (!localStorage.getItem("promptSemplifica")) {
+    document.getElementById("promptSemplifica").value = defaultPromptSemplifica;
+    localStorage.setItem("promptSemplifica", defaultPromptSemplifica);
+  } else {
+    document.getElementById("promptSemplifica").value = localStorage.getItem("promptSemplifica");
+  }
+  const savedSemplifica = localStorage.getItem("promptSemplifica");
       document.getElementById("promptSemplificaBox").style.display = "none";
 
       if (savedSemplifica) document.getElementById("promptSemplifica").value = savedSemplifica;
@@ -290,7 +302,12 @@
   document.getElementById("gptPrompt").addEventListener("input", () => {
     localStorage.setItem("gptPrompt", document.getElementById("gptPrompt").value);
   });
-    });
+    
+});
+
+      
+
+     
 
     function togglePromptBox() {
       const box = document.getElementById("promptBox");
