@@ -48,17 +48,15 @@
     <ul>
       <li>Un computer o tablet con connessione a internet</li>
       <li>Un browser (consigliato: Google Chrome)</li>
-      <li>Questa web app funziona dotandosi di una <strong>API Key OpenAI</strong> per accedere ai servizi GPT (gratuita o a pagamento, si ottiene registrandosi su <a href="https://platform.openai.com" target="_blank">https://platform.openai.com</a>)</li>
+      <li>Una <strong>API Key OpenAI</strong> per accedere ai servizi GPT, ottenibile su <a href="https://platform.openai.com" target="_blank">https://platform.openai.com</a></li>
     </ul>
   </div>
 
   <div class="box">
     <h2>🚀 Vocabolario di base</h2>
     <ol>
-     <li>Carica un vocabolario italano di parole di base in formato txt. Suggeriamo l'elenco delle 2000 parole fondamentali tratte dal Vocabolario di base della Lingua Italiana di De Mauro. Le trovi da <a href="2000_parole_fondamentali_DeMauro.zip" download>scaricare qui in formato zip</a> </li>
-     <li>Estrai il file txt dalla cartella compressa e aprilo con un editor di testo se vuoi vedere che parole ci sono e aggiungere o togliere parole, prima di caricarlo nella web app</li>
-     <li>Una volta caricato la prima volta il file txt, il vocabolario sarà salvato localmente nel tuo browser e sarà riaperto automaticamente quando riaccedi a questa web app. </li>
-      
+      <li>Scegli un vocabolario predefinito (es. De Mauro – Fondamentale) dal menu a tendina "📚 Vocabolario".</li>
+      <li>Il vocabolario selezionato viene salvato nel browser per gli accessi futuri.</li>
     </ol>
   </div>
 
@@ -66,79 +64,78 @@
     <h2>🗝️ Inserisci la tua API Key</h2>
     <ol>
       <li>Vai su <a href="https://platform.openai.com/account/api-keys" target="_blank">platform.openai.com/account/api-keys</a></li>
-      <li>Effettua il login e clicca su “Create new secret key”</li>
-      <li>Copia la chiave generata</li>
-      <li>Incollala nella casella "Inserisci la tua API Key OpenAI" nella web app</li>
+      <li>Crea una nuova chiave segreta</li>
+      <li>Copiala e incollala nella casella dedicata nella web app</li>
     </ol>
-    <p class="important"><strong>Nota:</strong> questa chiave è privata. La web app la usa e salva solo nel tuo browser locale, non viene inviata a nessun server esterno.</p>
+    <p class="important"><strong>Nota:</strong> la chiave viene salvata solo nel tuo browser. Non viene trasmessa ad altri server.</p>
   </div>
 
   <div class="box">
-    <h2>📄 Carica il tuo testo</h2>
-    <p>Scrivi o incolla il testo che vuoi analizzare nel riquadro "Testo da analizzare".</p>
+    <h2>📄 Inserisci il testo da analizzare</h2>
+    <p>Scrivi o incolla il testo nel riquadro centrale della web app.</p>
   </div>
 
   <div class="box">
-    <h2>🔍 Lettura Guidata</h2>
-    <p>Cliccando su <strong>"Lettura Guidata"</strong>, la web app:</p>
+    <h2>🗺️ Lettura Guidata</h2>
+    <p>Cliccando su <strong>"Lettura Guidata"</strong>:</p>
     <ul>
-      <li>analizza il testo</li>
-      <li>evidenzia le parole difficili (cioè non comuni o non nel tuo vocabolario)</li>
-      <li>ti permette di cliccare sulle parole per ottenerne una spiegazione semplice</li>
+      <li>vengono evidenziate le parole non presenti nel vocabolario</li>
+      <li>cliccando su una parola si ottiene una spiegazione semplice tramite GPT</li>
     </ul>
   </div>
 
   <div class="box">
-    <h2>✍️ Semplifica Testo</h2>
-    <p>Cliccando su <strong>"Semplifica Testo"</strong>, otterrai una versione semplificata del tuo testo, scritta con parole facili e frasi più brevi. È ideale per:</p>
+    <h2>🔴 Frasi complesse (indice Gulpease)</h2>
+    <p>Con il pulsante <strong>"Sottolinea Frasi Complesse"</strong> puoi:</p>
     <ul>
-      <li>chi ha difficoltà di lettura</li>
-      <li>chi studia l’italiano</li>
-      <li>contesti educativi inclusivi</li>
+      <li>calcolare l’indice di Gulpease per ogni frase</li>
+      <li>sottolineare in rosso quelle con indice sotto la soglia impostata</li>
+      <li>cliccare su una frase per riceverne una spiegazione semplificata</li>
     </ul>
   </div>
 
   <div class="box">
-    <h2>🖱️ Spiega selezione</h2>
-    <p>Puoi selezionare con il mouse una parte del testo e cliccare su <strong>"Spiega selezione"</strong> per ricevere una spiegazione semplice del significato di quella frase.</p>
+    <h2>🟨 Spiega una selezione</h2>
+    <p>Seleziona una parte del testo con il mouse e clicca su <strong>"Spiega testo evidenziato con il mouse"</strong> per ricevere una spiegazione semplice da GPT.</p>
   </div>
 
   <div class="box">
-    <h2>🧠 Personalizzare i prompt</h2>
-    <p>Se vuoi, puoi modificare i testi che la web app invia all’intelligenza artificiale. Clicca su:</p>
+    <h2>✍️ Semplifica il testo</h2>
+    <p>Con il pulsante <strong>"Semplifica il Testo"</strong> puoi ottenere una versione riscritta in italiano semplificato (livello A1).</p>
+  </div>
+
+  <div class="box">
+    <h2>💬 Chatbot LucIA</h2>
+    <p>Clicca sull’icona con il fumetto in basso a destra per attivare <strong>LucIA</strong>, il chatbot che risponde a domande sul testo caricato.</p>
+    <p>LucIA risponde in modo semplice e chiaro su grammatica, significati e parole.</p>
+  </div>
+
+  <div class="box">
+    <h2>⚙️ Personalizza il comportamento</h2>
     <ul>
-      <li><strong>Prompt Lettura Guidata</strong> per cambiare il modo in cui le parole vengono spiegate</li>
-      <li><strong>Prompt Semplifica Testo</strong> per cambiare le istruzioni della semplificazione</li>
+      <li>Apri le impostazioni con il pulsante "⚙️ Impostazioni"</li>
+      <li>Modifica i prompt GPT per Lettura Guidata e Semplificazione</li>
+      <li>Imposta le temperature GPT per ogni funzione</li>
+      <li>Regola la soglia Gulpease per le frasi complesse</li>
     </ul>
   </div>
 
   <div class="box">
-    <h2>💾 Esporta il risultato in PDF</h2>
-    <p>Cliccando su <strong>"Esporta PDF"</strong>, potrai salvare il lavoro con:</p>
+    <h2>🧾 Esporta in PDF</h2>
+    <p>Con <strong>"Esporta PDF"</strong> puoi salvare:</p>
     <ul>
-      <li>Il testo originale</li>
-      <li>Le parole difficili con spiegazione</li>
-      <li>Le frasi selezionate e spiegate</li>
+      <li>il testo originale</li>
+      <li>le spiegazioni delle parole e delle frasi complesse</li>
+      <li>la versione semplificata (se generata)</li>
     </ul>
-  </div>
-
-  <div class="box">
-    <h2>📁 Aggiungere parole conosciute</h2>
-    <p>La web app ti permette di:</p>
-    <ul>
-      <li><strong>Caricare</strong> un file `.txt` con le parole che conosci (una parola per riga)</li>
-      <li><strong>Aggiungere</strong> manualmente nuove parole</li>
-      <li><strong>Scaricare</strong> l’elenco aggiornato</li>
-    </ul>
-    <p>Così la web app ti spiega solo le parole che non conosci!</p>
   </div>
 
   <div class="important">
-    <p><strong>Hai bisogno di aiuto?</strong> Se qualcosa non funziona, controlla di avere una connessione attiva e una API Key valida. Ricarica la pagina se necessario.</p>
+    <p><strong>Serve aiuto?</strong> Assicurati di avere una connessione attiva, una API Key valida, e di aver caricato un vocabolario. Ricarica la pagina se serve.</p>
   </div>
 
   <p style="text-align: center; margin-top: 40px; font-size: 0.9em; color: #555;">
-    Limpide Letture &copy; Fondazione ASPHI Onlus - Progetto per l'inclusione digitale<br>
+    Limpide Letture &copy; Fondazione ASPHI Onlus – Progetto per l'inclusione digitale<br>
     Ultimo aggiornamento: maggio 2025
   </p>
 </body>
