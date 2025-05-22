@@ -180,10 +180,10 @@
             <label for="selezionaVocabolario">📚 Scegli un vocabolario predefinito:</label>
 <select id="selezionaVocabolario" onchange="caricaVocabolarioPredefinito()">
   <option value="">-- Seleziona --</option>
-  <option value="fondamentale.json">De Mauro – Fondamentale</option>
-  <option value="altouso.json">De Mauro – Alto uso</option>
-  <option value="altadisponibilita.json">De Mauro – Alta disponibilità</option>
-  <option value="basecompleto.json">De Mauro - Base Completo (7000 lemmi)</option>
+  <option value="vocabolari/fondamentale.json">De Mauro – Fondamentale</option>
+  <option value="vocabolari/altouso.json">De Mauro – Alto uso</option>
+  <option value="vocabolari/altadisponibilita.json">De Mauro – Alta disponibilità</option>
+  <option value="vocabolari/basecompleto.json">De Mauro - Base Completo (7000 lemmi)</option>
 </select>
 <span id="vocabolarioMsg" style="color: green;"></span>
 
@@ -224,6 +224,8 @@
         <div class="section" style="margin-bottom: 0.5rem;">
           <button onclick="togglePromptBox()">🗺️ Modifica il prompt per la Lettura Guidata</button>
           <button onclick="toggle2PromptBox()">✍️ Modifica il prompt per la Semplificazione del Testo</button>
+          <button onclick="ripristinaPromptDefault()">♻️ Ripristina Prompt di Default</button>
+
          <label for="gulpeaseThreshold"> 🔴 Sottolinea Frasi Complesse - Indice di Gulpease (0-100) </label> <input type="number" id="gulpeaseThreshold" min="0" max="100" value="60" style="width: 5rem;">
         </div>
       </div>
@@ -771,6 +773,19 @@ aggiungiSpiegazioneAlBox(word, spiegazione, "tooltip");
   }
 }
 
+function pulisciTestoPerPDF(testo) {
+  return testo
+    .replace(/[\u{1F600}-\u{1F64F}]/gu, '') // Emoji faccine
+    .replace(/[\u{1F300}-\u{1F5FF}]/gu, '') // Simboli vari
+    .replace(/[\u{1F680}-\u{1F6FF}]/gu, '') // Simboli di trasporto
+    .replace(/[\u{2600}-\u{26FF}]/gu, '')   // Simboli vari (es. ⚙️)
+    .replace(/[“”‘’•…]/g, '')               // Virgolette e puntini sospensivi
+    // Non togliamo àèòìù, restano le lettere italiane
+    .replace(/\u200B/g, '')                 // Zero width space, se presente
+    .trim();
+}
+
+
     async function exportToPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -785,14 +800,14 @@ aggiungiSpiegazioneAlBox(word, spiegazione, "tooltip");
   function addTitoloSezione(testo, spazio = 8) {
     doc.setFont(undefined, "bold");
     doc.setFontSize(13);
-    doc.text(testo, 10, y);
+    doc.text(pulisciTestoPerPDF(testo), 10, y);
     y += spazio;
     doc.setFont(undefined, "normal");
     doc.setFontSize(11);
   }
 
   function addTestoMultiLinea(testo, spazio = 7) {
-    const righe = doc.splitTextToSize(testo, 180);
+    const righe = doc.splitTextToSize(pulisciTestoPerPDF(testo), 180);
     righe.forEach(r => {
       if (y > 280) {
         doc.addPage();
@@ -806,7 +821,7 @@ aggiungiSpiegazioneAlBox(word, spiegazione, "tooltip");
 
   // Titolo
   doc.setFontSize(16);
-  doc.text(titolo, 10, y);
+  doc.text(pulisciTestoPerPDF(titolo), 10, y);
   y += 12;
 
   // Testo originale
@@ -840,6 +855,7 @@ aggiungiSpiegazioneAlBox(word, spiegazione, "tooltip");
   // Salva
   doc.save("lettura_guidata.pdf");
 }
+
 
 
 
@@ -902,8 +918,19 @@ async function spiegaSelezioneOutput() {
 }
 function toggleSettings() {
   const panel = document.getElementById("settingsPanel");
-  panel.style.display = panel.style.display === "none" ? "block" : "none";
+  const promptBox = document.getElementById("promptBox");
+  const promptSemplificaBox = document.getElementById("promptSemplificaBox");
+
+  const isVisible = panel.style.display === "block";
+  panel.style.display = isVisible ? "none" : "block";
+
+  // Chiude entrambi i box dei prompt quando si chiudono le impostazioni
+  if (isVisible) {
+    promptBox.style.display = "none";
+    promptSemplificaBox.style.display = "none";
+  }
 }
+
 
 function toggleVocabolario() {
   const panel = document.getElementById("vocabolarioPanel");
@@ -1094,6 +1121,20 @@ async function caricaVocabolarioPredefinito() {
 
   setTimeout(() => document.getElementById("vocabolarioMsg").textContent = "", 4000);
 };
+
+function ripristinaPromptDefault() {
+  const defaultPromptLettura = "Spiega la parola '{parola}' nel contesto seguente in modo semplice e adatto a chi conosce poco l'italiano:\n\n{testo}";
+  const defaultPromptSemplifica = "Riscrivi il seguente testo in modo semplice, comprensibile a un parlante di italiano a livello A1, con parole facili e frasi brevi, mantenendo lo stesso significato:\n\n";
+
+  document.getElementById("gptPrompt").value = defaultPromptLettura;
+  document.getElementById("promptSemplifica").value = defaultPromptSemplifica;
+
+  localStorage.setItem("gptPrompt", defaultPromptLettura);
+  localStorage.setItem("promptSemplifica", defaultPromptSemplifica);
+
+  alert("Prompt ripristinati ai valori di default.");
+}
+
 
 
   </script>
