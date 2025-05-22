@@ -258,7 +258,7 @@
 <!-- Media Gulpease + Leggenda -->
 <div id="gulpeaseInfo" style="margin-top: 1rem;">
   <label style="font-weight: bold;">
-  📏 Indice medio di 
+  📏 Indice globale di 
   <span id="gulpeaseTerm" style="text-decoration: underline dotted; cursor: help;">Gulpease</span>:
 </label>
 
@@ -1019,7 +1019,7 @@ function calcolaGulpease(frase) {
 }
 
 function evidenziaFrasiDifficili() {
-  const testo = document.getElementById("inputText").value;
+  let testo = document.getElementById("inputText").value;
   const soglia = parseInt(document.getElementById("gulpeaseThreshold").value);
   const apiKey = document.getElementById("apiKey").value;
   const modello = document.getElementById("gptModel").value;
@@ -1029,34 +1029,39 @@ function evidenziaFrasiDifficili() {
     return;
   }
 
+  // 🔍 Rimuove numeri o lettere con punto all'inizio di riga
+  testo = testo.replace(/(^|\n)\s*[a-z0-9]\.\s+/gi, '$1');
+
   const frasi = testo.match(/[^.!?]+[.!?]*/g) || [testo];
   let risultato = '';
-  let somma = 0;
 
+  // 🔢 Calcola indice sul testo completo
+  const indiceTestoIntero = calcolaGulpease(testo);
+  const colore = indiceTestoIntero >= 80 ? "blue" :
+                 indiceTestoIntero >= 60 ? "green" :
+                 indiceTestoIntero >= 40 ? "orange" : "red";
+
+  // ✏️ Evidenziazione frase per frase
   frasi.forEach((frase, idx) => {
     const indice = calcolaGulpease(frase);
-    somma += indice;
     const id = `frase_${idx}`;
 
     if (indice < soglia) {
       const frasePulita = frase.trim();
-const fraseEncoded = encodeURIComponent(frasePulita);
-risultato += `<span class="frase-difficile" id="${id}" onclick="spiegaFrase(decodeURIComponent('${fraseEncoded}'), '${id}')">${frasePulita} <sup>(${indice})</sup></span> `;
-
+      const fraseEncoded = encodeURIComponent(frasePulita);
+      risultato += `<span class="frase-difficile" id="${id}" onclick="spiegaFrase(decodeURIComponent('${fraseEncoded}'), '${id}')">${frasePulita} <sup>(${indice})</sup></span> `;
     } else {
       risultato += `${frase.trim()} <sup>(${indice})</sup> `;
     }
   });
 
+  // 🖼️ Aggiorna output e barra
   document.getElementById("output").innerHTML = risultato;
-
-  // Calcola e mostra la media Gulpease
-  const media = Math.round(somma / frasi.length);
-  const colore = media >= 80 ? "blue" : media >= 60 ? "green" : media >= 40 ? "orange" : "red";
-  document.getElementById("gulpeaseBarFill").style.width = `${media}%`;
+  document.getElementById("gulpeaseBarFill").style.width = `${indiceTestoIntero}%`;
   document.getElementById("gulpeaseBarFill").style.backgroundColor = colore;
-  document.getElementById("gulpeaseValue").textContent = `📊 Media: ${media}`;
+  document.getElementById("gulpeaseValue").textContent = `Valore: ${indiceTestoIntero}`;
 }
+
 
 async function spiegaFrase(frase, id) {
   const existing = document.getElementById(`spiegazione_${id}`);
